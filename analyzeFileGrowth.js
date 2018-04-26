@@ -25,14 +25,10 @@ const textAnalysis = new Transform({
     };
 
     // set initial byteLength
-    if (initByteLength === 0) {
-      initByteLength = obj.byteLength;
-    }
+    initByteLength = 0 ? obj.byteLength : 0
 
     // set initial totalLines
-    if (initTotalLines === 0) {
-      initTotalLines = obj.totalLines;
-    }
+    initTotalLines = 0 ? obj.totalLines : 0
 
     this.push(obj);
     callback();
@@ -78,6 +74,4 @@ if (option && !options.includes(option)) {
   throw new Error('option not recognized')
 }
 
-const inputStream = process.stdin.setEncoding('utf8')
-
-executeScript(inputStream, process.stdout)
+executeScript(process.stdin.setEncoding('utf8'), process.stdout)
