@@ -9,7 +9,7 @@ let initTotalLine = 0;
 
 parseHrtimeToSeconds = (hrtime) => {
   // hrtime[0] in seconds, hrtime[1] in nanoseconds therefore need to convert
-  var seconds = hrtime[0] + (hrtime[1] / 1e9);
+  const seconds = hrtime[0] + (hrtime[1] / 1e9);
   return seconds;
 }
 
