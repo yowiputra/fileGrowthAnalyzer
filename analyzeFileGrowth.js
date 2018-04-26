@@ -67,14 +67,20 @@ const objectToString = new Transform({
   }
 });
 
+executeScript = (inputStream, outputStream) => {
+  inputStream  
+    .pipe(textAnalysis)
+    .pipe(objectToString)
+    .pipe(outputStream)
+}
+
 // validate option
 if (option && !options.includes(option)) {
   throw new Error('option not recognized')
 }
 
-process.stdin
-  .setEncoding('utf8')
-  .on('data', () => startTime = process.hrtime())
-  .pipe(textAnalysis)
-  .pipe(objectToString)
-  .pipe(process.stdout)
+const inputStream = process.stdin
+                      .setEncoding('utf8')
+                      .on('data', () => startTime = process.hrtime())
+
+executeScript(inputStream, process.stdout)
