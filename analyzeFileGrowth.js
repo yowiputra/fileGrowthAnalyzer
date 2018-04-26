@@ -4,6 +4,7 @@ const option = process.argv[2];
 const overallTime = process.hrtime();
 
 // global variables
+const options = ['-v', '--verbose']
 let startTime = null;
 let initTotalLine = 0;
 
@@ -58,7 +59,6 @@ const objectToString = new Transform({
           reportString += `\nThroughput rate: ${throughputRate} bytes / s\nElapsed time: ${chunk.elapsedTime.toFixed(6)} s\nFile size: ${chunk.byteLength} bytes`;
           break;
         default:
-          throw new Error('option not recognized')
       }
     }
     
@@ -66,6 +66,11 @@ const objectToString = new Transform({
     callback();
   }
 });
+
+// validate option
+if (option && !options.includes(option)) {
+  throw new Error('option not recognized')
+}
 
 process.stdin
   .setEncoding('utf8')
