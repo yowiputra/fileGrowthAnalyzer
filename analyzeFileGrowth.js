@@ -5,8 +5,8 @@ const overallTime = process.hrtime();
 
 // global variables
 const options = ['-v', '--verbose']
-let startTime = null;
-let initTotalLine = 0;
+let initByteLength = 0;
+let initTotalLines = 0;
 
 parseHrtimeToSeconds = (hrtime) => {
   // hrtime[0] in seconds, hrtime[1] in nanoseconds therefore need to convert
@@ -19,17 +19,19 @@ const textAnalysis = new Transform({
   transform(chunk, encoding, callback) {
     // create return object
     const obj = {
-      elapsedTime: parseHrtimeToSeconds(process.hrtime(startTime)),
+      elapsedTime: parseHrtimeToSeconds(process.hrtime(overallTime)),
       byteLength: Buffer.byteLength(chunk, 'utf8'),
       totalLines: chunk.toString().split('\n').length
     };
 
-    // reset startTime
-    startTime = null;
+    // set initial byteLength
+    if (initByteLength === 0) {
+      initByteLength = obj.byteLength;
+    }
 
-    // put initial totalLines in totalLineHistory
-    if (initTotalLine === 0) {
-      initTotalLine = obj.totalLines;
+    // set initial totalLines
+    if (initTotalLines === 0) {
+      initTotalLines = obj.totalLines;
     }
 
     this.push(obj);
@@ -40,23 +42,20 @@ const textAnalysis = new Transform({
 const objectToString = new Transform({
   writableObjectMode: true,
   transform(chunk, encoding, callback) {
-    // calculate throughput rate
-    const throughputRate = (chunk.byteLength / chunk.elapsedTime).toFixed(0);
+    // calculate overall growth rate (bytes / s)
+    const growthRateInBytes = ((chunk.byteLength - initByteLength) / chunk.elapsedTime).toFixed(0);
+    
+    // calculate overall growth rate (lines / s)
+    const growthRateInLines = ((chunk.totalLines - initTotalLines) / chunk.elapsedTime).toFixed(2);
 
-    // calculate file growth rate
-    // NOTE: this calculates OVERALL growth rate of the file (difference between current total lines and lines at the beginning of script execution over total time elapsed since script execution)
-    const lineDiff = chunk.totalLines - initTotalLine;
-    const overallTimeInSeconds = parseHrtimeToSeconds(process.hrtime(overallTime));
-    const growthRate = (lineDiff / overallTimeInSeconds).toFixed(2);
-
-    let reportString = `Number of lines: ${chunk.totalLines} lines\nFile growth rate: ${growthRate} lines / s`;
+    let reportString = `Number of lines: ${chunk.totalLines} lines\nGrowth rate: ${growthRateInBytes} bytes / s`;
 
     // check if option exists, if so, apply
     if (option) {
       switch(option) {
         case '-v':
         case '--verbose':
-          reportString += `\nThroughput rate: ${throughputRate} bytes / s\nElapsed time: ${chunk.elapsedTime.toFixed(6)} s\nFile size: ${chunk.byteLength} bytes`;
+          reportString += `\nGrowth rate: ${growthRateInLines} lines / s\nElapsed time: ${chunk.elapsedTime.toFixed(2)} s\nFile size: ${chunk.byteLength} bytes`;
           break;
         default:
       }
@@ -79,8 +78,6 @@ if (option && !options.includes(option)) {
   throw new Error('option not recognized')
 }
 
-const inputStream = process.stdin
-                      .setEncoding('utf8')
-                      .on('data', () => startTime = process.hrtime())
+const inputStream = process.stdin.setEncoding('utf8')
 
 executeScript(inputStream, process.stdout)
