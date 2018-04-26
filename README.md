@@ -10,4 +10,11 @@ $ tail -f logFile.txt | node analyzeFileGrowth.js -v
 -v / --verbose: reports additional info such as throughput rate (bytes / s), elapsed time per run  and file size (bytes)
 
 ## Test
-Run `emulateLogging.js` on a different terminal window while `analyzeFileGrowth.js` is running. Since `emulateLogging.js` is set to 1 second intervals, the file growth rate on the output of `analyzeFileGrowth.js` should come around to 1 line / s.
+``` 
+node emulateLogging.js
+```
+Then on a different terminal, run:
+```
+$ tail -f testText.md | node analyzeFileGrowth.js -v
+```
+Since `emulateLogging.js` is set to 1 second intervals, the file growth rate on the output of `analyzeFileGrowth.js` should come around to 1 line / s. Number of lines will go from 1 and start incrementing by 1 every second.
