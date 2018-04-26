@@ -17,11 +17,10 @@ const textAnalysis = new Transform({
   readableObjectMode: true,
   transform(chunk, encoding, callback) {
     // create return object
-    const stringifiedChunk = chunk.toString();
     const obj = {
       elapsedTime: parseHrtimeToSeconds(process.hrtime(startTime)),
       byteLength: Buffer.byteLength(chunk, 'utf8'),
-      totalLines: stringifiedChunk.split('\n').length
+      totalLines: chunk.toString().split('\n').length
     };
 
     // reset startTime
