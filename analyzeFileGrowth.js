@@ -5,7 +5,7 @@ const overallTime = process.hrtime();
 
 // global variables
 let startTime = null;
-let totalLineHistory = [];
+let initTotalLine = 0;
 
 parseHrtimeToSeconds = (hrtime) => {
   // hrtime[0] in seconds, hrtime[1] in nanoseconds therefore need to convert
@@ -27,8 +27,10 @@ const textAnalysis = new Transform({
     // reset startTime
     startTime = null;
 
-    // put totalLines in totalLineHistory
-    totalLineHistory.push(obj.totalLines);
+    // put initial totalLines in totalLineHistory
+    if (initTotalLine === 0) {
+      initTotalLine = obj.totalLines;
+    }
 
     this.push(obj);
     callback();
@@ -43,7 +45,7 @@ const objectToString = new Transform({
 
     // calculate file growth rate
     // NOTE: this calculates OVERALL growth rate of the file (difference between current total lines and lines at the beginning of script execution over total time elapsed since script execution)
-    const lineDiff = totalLineHistory[totalLineHistory.length - 1] - totalLineHistory[1] || 0;
+    const lineDiff = chunk.totalLines - initTotalLine;
     const overallTimeInSeconds = parseHrtimeToSeconds(process.hrtime(overallTime));
     const growthRate = (lineDiff / overallTimeInSeconds).toFixed(2);
 
