@@ -25,10 +25,10 @@ const textAnalysis = new Transform({
     };
 
     // set initial byteLength
-    initByteLength = 0 ? obj.byteLength : 0
+    initByteLength === 0 ? obj.byteLength : 0
 
     // set initial totalLines
-    initTotalLines = 0 ? obj.totalLines : 0
+    initTotalLines === 0 ? obj.totalLines : 0
 
     this.push(obj);
     callback();
@@ -40,7 +40,7 @@ const objectToString = new Transform({
   transform(chunk, encoding, callback) {
     // calculate overall growth rate (bytes / s)
     const growthRateInBytes = ((chunk.byteLength - initByteLength) / chunk.elapsedTime).toFixed(0);
-    
+
     // calculate overall growth rate (lines / s)
     const growthRateInLines = ((chunk.totalLines - initTotalLines) / chunk.elapsedTime).toFixed(2);
 
@@ -56,14 +56,14 @@ const objectToString = new Transform({
         default:
       }
     }
-    
+
     this.push(reportString + '\n\n');
     callback();
   }
 });
 
 executeScript = (inputStream, outputStream) => {
-  inputStream  
+  inputStream
     .pipe(textAnalysis)
     .pipe(objectToString)
     .pipe(outputStream)
