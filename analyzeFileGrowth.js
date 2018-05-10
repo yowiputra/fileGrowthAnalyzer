@@ -28,13 +28,11 @@ const textAnalysis = new Transform({
     if (initByteLength === 0) {
       initByteLength = obj.byteLength
     }
-    console.log(initByteLength)
 
     // set initial totalLines
     if (initTotalLines === 0) {
       initTotalLines = obj.totalLines
     }
-    console.log(initTotalLines)
 
     this.push(obj);
     callback();
